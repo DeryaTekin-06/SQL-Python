@@ -182,7 +182,13 @@ def giris_yap():
     canvas.pack(side="left", fill="both", expand=True)
 
     scrollable_kampanya_frame = tk.Frame(canvas, bg="#f5f5f5")
-    canvas.create_window((0, 0), window=scrollable_kampanya_frame, anchor="nw")
+    # Canvas içine frame'i yerleştir ve ID'sini al
+    frame_id = canvas.create_window((0, 0), window=scrollable_kampanya_frame, anchor="nw")
+
+    # Frame'in genişliğini canvas genişliğine eşitle
+    def _configure_canvas(event):
+        canvas.itemconfig(frame_id, width=event.width)
+    canvas.bind("<Configure>", _configure_canvas)
 
     scrollable_kampanya_frame.bind(
         "<Configure>",
@@ -200,22 +206,25 @@ def giris_yap():
                        k["GecerlilikTarihi"],
                        k["SponsorFirma"])
 
+    # Scroll region'u manuel güncelle
+    canvas.update_idletasks()
+    canvas.configure(scrollregion=canvas.bbox("all"))
+
 
 # ================= KAMPANYA KART =================
 def kampanya_karti(parent, indirim, tarih, firma):
     kart = tk.Frame(parent, bg="pink", bd=1, relief="solid", width=300)
-    kart.pack(pady=8)
-    kart.pack_propagate(False)
+    kart.pack(pady=8, fill="x")               # yatayda genişle
+    kart.pack_propagate(False)                # genişlik 300'de sabit kalsın
 
     tk.Label(kart, text=f"İndirim: %{indirim}",
              fg="#e91e63", bg="pink",
-             font=("Arial", 12, "bold")).pack(anchor="w", padx=10, pady=5)
-
+             font=("Arial", 12, "bold")).pack(anchor="w", padx=10, pady=5, fill="x")
     tk.Label(kart, text=f"Geçerlilik: {tarih}",
-             bg="pink").pack(anchor="w", padx=10)
-
+             bg="pink").pack(anchor="w", padx=10, fill="x")
     tk.Label(kart, text=f"Firma: {firma}",
-             bg="pink").pack(anchor="w", padx=10, pady=5)
+             bg="pink").pack(anchor="w", padx=10, pady=5, fill="x")
+
 
 # ================= ÜST BAR =================
 ust_bar = tk.Frame(root, bg="#333", height=50)
@@ -247,3 +256,4 @@ tk.Button(giris_sayfasi,
 aktif_kullanici_email
 
 root.mainloop()
+

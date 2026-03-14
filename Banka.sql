@@ -120,3 +120,51 @@ SELECT @KampanyaID = KampanyaID
 FROM Kampanyalar 
 WHERE KampanyaAdi LIKE '%Pegasus%' AND GecerlilikTarihi >= GETDATE();
 
+
+use BANKA
+
+-- Server seviyesinde login oluştur
+CREATE LOGIN banka_user WITH PASSWORD = 'GucluBirSifre123!';
+GO
+
+-- BANKA veritabanına geç
+USE BANKA;
+GO
+
+-- Login'i veritabanı kullanıcısına bağla
+CREATE USER banka_user FOR LOGIN banka_user;
+
+-- Yetkiler ver
+ALTER ROLE db_datareader ADD MEMBER banka_user;
+ALTER ROLE db_datawriter ADD MEMBER banka_user;
+GO
+
+
+USE BANKA;
+
+INSERT INTO Islemler (MusteriID, Kategori, Tutar, Tarih, Lokasyon, Kaynak, Platform, CihazTipi)
+VALUES (
+    (SELECT MusteriID FROM Musteriler WHERE Email = 'beydanurtekin06@gmail.com'), 
+    'Mont', 
+    2500.00, 
+    GETDATE(), 'Viyana', 'Jakes', 'Mağaza', 'Macbook'
+);
+
+SELECT * FROM Islemler
+
+INSERT INTO Kampanyalar (KampanyaAdi, Kategori, Aciklama, IndirimOrani, GecerlilikTarihi, SponsorFirma, AI_oncelik)
+VALUES('Kışlık botlarda %20 indirim', 'Giyim', 'Derimod Botlarda İndirim', 20, '2026-04-30', 'Derimod', 4),
+('Atkılarda indirim', 'Giyim', 'Mavide atkılarda indirim', 30, '2026-03-30', 'Mavi', 7)
+;
+
+SELECT * FROM Kampanyalar
+
+SELECT TOP 1 Kategori 
+FROM Islemler 
+WHERE MusteriID = (SELECT MusteriID FROM Musteriler WHERE Email = 'beydanurtekin06@gmail.com')
+ORDER BY Tarih DESC;
+
+
+
+ALTER TABLE Musteriler
+ADD Sifre NVARCHAR(100);
